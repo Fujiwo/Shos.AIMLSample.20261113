@@ -8,11 +8,13 @@ using System.Linq;
 namespace Mnist.CSharp
 {
     /// <summary>手書き数字推論器</summary>
-    class MnistInferer
+    class MnistInferer : IDisposable
     {
         readonly InferenceSession session;
 
         public MnistInferer(string onnxModelPath) => session = new InferenceSession(onnxModelPath);
+
+        public void Dispose() => session.Dispose();
 
         /// <summary>数字の予想</summary>
         /// <param name="input">0～1の値の配列 (28x28、左上原点)</param>
@@ -28,6 +30,9 @@ namespace Mnist.CSharp
                      });
 
         IEnumerable<float> Infer(IReadOnlyCollection<NamedOnnxValue> inputOnnxValues)
-            => session.Run(inputOnnxValues).First().AsTensor<float>();
+        {
+            using var results = session.Run(inputOnnxValues);
+            return results.First().AsTensor<float>().ToArray();
+        }
     }
 }

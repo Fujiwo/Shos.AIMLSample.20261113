@@ -36,7 +36,7 @@
 - Modify: `Mnist.CSharp/MnistInferer.cs`
 - Modify: `Mnist.CSharp/Program.cs`
 
-- [ ] **Step 1: `MnistInferer` に `IDisposable` を実装する**
+- [x] **Step 1: `MnistInferer` に `IDisposable` を実装する**
 
 クラス宣言を `class MnistInferer : IDisposable` に変更し、保持する `InferenceSession` を解放するメソッドを追加する。
 
@@ -44,7 +44,7 @@
 public void Dispose() => session.Dispose();
 ```
 
-- [ ] **Step 2: 推論結果を破棄し、出力値を破棄前に配列へコピーする**
+- [x] **Step 2: 推論結果を破棄し、出力値を破棄前に配列へコピーする**
 
 `Infer(IReadOnlyCollection<NamedOnnxValue> inputOnnxValues)` を次の形にする。戻り値を `ToArray()` で実体化し、結果オブジェクトの破棄後も列挙できるようにする。
 
@@ -56,7 +56,7 @@ IEnumerable<float> Infer(IReadOnlyCollection<NamedOnnxValue> inputOnnxValues)
 }
 ```
 
-- [ ] **Step 3: 呼び出し側で推論器を破棄する**
+- [x] **Step 3: 呼び出し側で推論器を破棄する**
 
 `Mnist.CSharp/Program.cs` の推論器生成を `using var` に変更する。
 
@@ -64,7 +64,7 @@ IEnumerable<float> Infer(IReadOnlyCollection<NamedOnnxValue> inputOnnxValues)
 using var mnistInference = new MnistInferer(@$"assets\{dataFileName}");
 ```
 
-- [ ] **Step 4: MNIST サンプルの実行と出力形式を確認する**
+- [x] **Step 4: MNIST サンプルの実行と出力形式を確認する**
 
 実行:
 
@@ -83,7 +83,7 @@ if ($exitCode -ne 0 -or ($output -join "`n") -notmatch '(?m)^The digit is probab
 - Create: `NeuralNetwork.Core.Tests/NeuronTests.cs`
 - Modify: `Shos.AIMLSample.20261113.sln`
 
-- [ ] **Step 1: MSTest プロジェクトを作成してソリューションに登録する**
+- [x] **Step 1: MSTest プロジェクトを作成してソリューションに登録する**
 
 ```powershell
 dotnet new mstest --framework net10.0 --name NeuralNetwork.Core.Tests --output NeuralNetwork.Core.Tests
@@ -91,7 +91,7 @@ dotnet add .\NeuralNetwork.Core.Tests\NeuralNetwork.Core.Tests.csproj reference 
 dotnet sln .\Shos.AIMLSample.20261113.sln add .\NeuralNetwork.Core.Tests\NeuralNetwork.Core.Tests.csproj
 ```
 
-- [ ] **Step 2: 同じ入力の再投入で値が変わらないテストを書く**
+- [x] **Step 2: 同じ入力の再投入で値が変わらないテストを書く**
 
 `NeuralNetwork.Core.Tests/NeuronTests.cs`:
 
@@ -124,7 +124,7 @@ public class NeuronTests
 }
 ```
 
-- [ ] **Step 3: 変更前のテスト失敗を確認する**
+- [x] **Step 3: 変更前のテスト失敗を確認する**
 
 実行:
 
@@ -139,7 +139,7 @@ dotnet test .\NeuralNetwork.Core.Tests\NeuralNetwork.Core.Tests.csproj --configu
 **Files:**
 - Modify: `NeuralNetwork.Core/NeuralNetwork.cs`
 
-- [ ] **Step 1: `Neuron.Input` の冒頭で内部和をリセットする**
+- [x] **Step 1: `Neuron.Input` の冒頭で内部和をリセットする**
 
 `Neuron.Input(IEnumerable<Input> inputData)` の先頭に `sum = 0;` を置き、既存の加算と活性化関数の処理はそのまま残す。
 
@@ -152,7 +152,7 @@ public void Input(IEnumerable<Input> inputData)
 }
 ```
 
-- [ ] **Step 2: 回帰テストの成功を確認する**
+- [x] **Step 2: 回帰テストの成功を確認する**
 
 実行:
 
@@ -168,7 +168,7 @@ dotnet test .\NeuralNetwork.Core.Tests\NeuralNetwork.Core.Tests.csproj --configu
 - Create: `README.md`
 - Verify: `Shos.AIMLSample.20261113.sln` の既存 `README.md` ソリューション項目
 
-- [ ] **Step 1: リポジトリの利用に必要な README を作成する**
+- [x] **Step 1: リポジトリの利用に必要な README を作成する**
 
 ルート `README.md` に次の節を記載する。
 
@@ -186,7 +186,7 @@ dotnet run --project .\Mnist.CSharp\Mnist.CSharp.csproj --configuration Debug
 
 ソリューションにはルート `README.md` が既に登録されているため、参照先の変更は行わない。
 
-- [ ] **Step 2: README の存在と参照先を確認する**
+- [x] **Step 2: README の存在と参照先を確認する**
 
 実行:
 
@@ -205,7 +205,7 @@ Select-String -Path .\Shos.AIMLSample.20261113.sln -Pattern 'README\.md = README
 - Verify: `README.md`
 - Verify: `Mnist.CSharp/MnistInferer.cs` と `Mnist.CSharp/Program.cs`
 
-- [ ] **Step 1: ソリューション全体を Debug 構成でビルドする**
+- [x] **Step 1: ソリューション全体を Debug 構成でビルドする**
 
 実行:
 
@@ -215,7 +215,7 @@ dotnet build .\Shos.AIMLSample.20261113.sln --configuration Debug
 
 期待結果: ビルドが成功し、エラーがない。
 
-- [ ] **Step 2: ソリューションのテストを実行する**
+- [x] **Step 2: ソリューションのテストを実行する**
 
 実行:
 
@@ -225,13 +225,13 @@ dotnet test .\Shos.AIMLSample.20261113.sln --configuration Debug
 
 期待結果: `NeuralNetwork.Core.Tests` の全テストが成功する。
 
-- [ ] **Step 3: MNIST サンプルを再実行する**
+- [x] **Step 3: MNIST サンプルを再実行する**
 
 Task 1 Step 4 の出力確認コマンドを実行する。
 
 期待結果: 推論プロセスが正常終了し、予測値が 0～9 の範囲で表示される。
 
-- [ ] **Step 4: Prism の再追加がないことを確認する**
+- [x] **Step 4: Prism の再追加がないことを確認する**
 
 実行:
 

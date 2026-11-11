@@ -1,5 +1,6 @@
 ﻿// 機械学習で作成した ONNX モデル ファイルを利用して、手書き文字の認識を行う
 using System;
+using System.IO;
 using System.Linq;
 
 namespace Mnist.CSharp
@@ -11,7 +12,7 @@ namespace Mnist.CSharp
             // 機械学習で作成した ONNX モデル ファイル
             var dataFileName = "mnist_model.onnx";
             // 推論器
-            var mnistInference = new MnistInferer(@$"assets\{dataFileName}");
+            using var mnistInference = new MnistInferer(Path.Combine(AppContext.BaseDirectory, "assets", dataFileName));
             // 数字の予想
             var result = mnistInference.Infer(Program.data);
             Console.WriteLine($"The digit is probably {result}.");

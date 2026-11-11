@@ -82,6 +82,7 @@ namespace NeuralNetwork.Core
 
         public void Input(IEnumerable<Input> inputData)
         {
+            sum = 0;
             inputData.ForEach(input => Input(input.WeightingValue));
             Value = Math.Sigmoid(sum);
         }
