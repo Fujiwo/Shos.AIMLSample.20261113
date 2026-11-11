@@ -7,10 +7,12 @@
         xmlns:oxyplot="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         Title="NeuralNetworkSample" Height="640" Width="640">
+    <!-- 画面全体の表示データとグラフ設定を ViewModel から受け取る。 -->
     <Window.DataContext>
         <viewmodels:MainWindowViewModel />
     </Window.DataContext>
     <Grid>
+        <!-- 各タブで、関数・座標・学習前・教師データ・学習後のグラフを切り替える。 -->
         <TabControl>
             <TabItem Header="シグモイド関数">
                 <oxyplot:PlotView Model="{Binding MathPlotModel}" />

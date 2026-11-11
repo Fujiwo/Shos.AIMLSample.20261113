@@ -10,6 +10,7 @@ static class EnumerableExtension
         public int MaximumIndex
         {
             get {
+                // 推論結果のうち最大値の位置を返し、最も確からしい数字を選ぶ。
                 var maximum = float.MinValue;
                 var maximumIndex = -1;
                 var index = 0;
