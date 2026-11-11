@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
-    <PackageReference Include="Prism.Wpf" Version="9.0.537" />
     <PackageReference Include="Shos.CsvHelper" Version="1.0.0.4" />
   </ItemGroup>
 
