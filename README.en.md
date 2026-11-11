@@ -1,5 +1,7 @@
 # Shos.AIMLSample.20261113
 
+[日本語](./README.md)
+
 This is a collection of samples for learning neural network fundamentals by running code in C# and Python. You can explore training a small network, graphing training results, and inference on handwritten digits using a trained model.
 
 ## Key Points
