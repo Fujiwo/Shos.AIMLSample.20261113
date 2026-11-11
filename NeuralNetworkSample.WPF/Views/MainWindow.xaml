@@ -1,0 +1,32 @@
+﻿<Window x:Class="NeuralNetworkSample.WPF.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:NeuralNetworkSample.WPF.ViewModels"
+        xmlns:oxyplot="http://oxyplot.org/wpf"
+        mc:Ignorable="d"
+        Title="NeuralNetworkSample" Height="640" Width="640">
+    <Window.DataContext>
+        <viewmodels:MainWindowViewModel />
+    </Window.DataContext>
+    <Grid>
+        <TabControl>
+            <TabItem Header="シグモイド関数">
+                <oxyplot:PlotView Model="{Binding MathPlotModel}" />
+            </TabItem>
+            <TabItem Header="座標データ">
+                <oxyplot:PlotView Model="{Binding SampleDataPlotModel}" />
+            </TabItem>
+            <TabItem Header="訓練前のニューラル ネットワーク">
+                <oxyplot:PlotView Model="{Binding NeuralNetworkPlotModel}" />
+            </TabItem>
+            <TabItem Header="教師データ">
+                <oxyplot:PlotView Model="{Binding TrainingDataPlotModel}" />
+            </TabItem>
+            <TabItem Header="教師データで訓練後">
+                <oxyplot:PlotView Model="{Binding MachineLearningPlotModel}" />
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
