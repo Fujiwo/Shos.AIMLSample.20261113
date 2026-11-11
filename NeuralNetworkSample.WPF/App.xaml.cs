@@ -1,9 +1,8 @@
 ﻿using System.Windows;
 
-namespace NeuralNetworkSample.WPF
+namespace NeuralNetworkSample.WPF;
+
+// アプリケーション
+public partial class App : Application
 {
-    // アプリケーション
-    public partial class App : Application
-    {
-    }
 }

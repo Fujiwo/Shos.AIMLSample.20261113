@@ -5,34 +5,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Mnist.CSharp
+namespace Mnist.CSharp;
+
+/// <summary>手書き数字推論器</summary>
+class MnistInferer : IDisposable
 {
-    /// <summary>手書き数字推論器</summary>
-    class MnistInferer : IDisposable
+    readonly InferenceSession session;
+
+    public MnistInferer(string onnxModelPath) => session = new InferenceSession(onnxModelPath);
+
+    public void Dispose() => session.Dispose();
+
+    /// <summary>数字の予想</summary>
+    /// <param name="input">0～1の値の配列 (28x28、左上原点)</param>
+    /// <returns>0～9 (数字)</returns>
+    public int Infer(float[] input) => GetInference(input).MaximumIndex;
+
+    IEnumerable<float> GetInference(float[] input)
+        => Infer([
+            NamedOnnxValue.CreateFromTensor(
+                session.InputMetadata.First().Key,
+                new DenseTensor<float>(new Memory<float>(input), session.InputMetadata.First().Value.Dimensions)
+            )
+        ]);
+
+    IEnumerable<float> Infer(IReadOnlyCollection<NamedOnnxValue> inputOnnxValues)
     {
-        readonly InferenceSession session;
-
-        public MnistInferer(string onnxModelPath) => session = new InferenceSession(onnxModelPath);
-
-        public void Dispose() => session.Dispose();
-
-        /// <summary>数字の予想</summary>
-        /// <param name="input">0～1の値の配列 (28x28、左上原点)</param>
-        /// <returns>0～9 (数字)</returns>
-        public int Infer(float[] input) => GetInference(input).MaximumIndex();
-
-        IEnumerable<float> GetInference(float[] input)
-            => Infer(new[] {
-                         NamedOnnxValue.CreateFromTensor(
-                             session.InputMetadata.First().Key,
-                             new DenseTensor<float>(new Memory<float>(input), session.InputMetadata.First().Value.Dimensions)
-                         )
-                     });
-
-        IEnumerable<float> Infer(IReadOnlyCollection<NamedOnnxValue> inputOnnxValues)
-        {
-            using var results = session.Run(inputOnnxValues);
-            return results.First().AsTensor<float>().ToArray();
-        }
+        using var results = session.Run(inputOnnxValues);
+        return results.First().AsTensor<float>().ToArray();
     }
 }

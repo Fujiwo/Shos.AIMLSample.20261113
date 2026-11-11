@@ -2,57 +2,69 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NeuralNetwork.Core
+namespace NeuralNetwork.Core;
+
+// 汎用拡張メンバー
+public static class EnumerableExtension
 {
-    // 汎用拡張メソッド
-    public static class EnumerableExtension
+    extension<TElement>(IEnumerable<TElement> source)
     {
-        public static void ForEach<TElement>(this IEnumerable<TElement> @this, Action<TElement> action)
+        public void ForEach(Action<TElement> action)
         {
-            foreach (var item in @this)
+            foreach (var item in source)
                 action(item);
         }
 
-        public static void For<TElement>(this IEnumerable<TElement> @this, Action<int, TElement> action)
+        public void For(Action<int, TElement> action)
         {
             var index = 0;
-            foreach (var item in @this)
+            foreach (var item in source)
                 action(index++, item);
         }
 
-        public static void For<TElement>(this TElement[,] @this, Action<int, int, TElement> action)
-        {
-            for (var row = 0; row < @this.GetLength(0); row++) {
-                for (var column = 0; column < @this.GetLength(1); column++)
-                    action(row, column, @this[row, column]);
-            }
-        }
-
-        public static IEnumerable<TResult> IndexSelect<TElement, TResult>(this IEnumerable<TElement> @this, Func<int, TResult> selector)
+        public IEnumerable<TResult> IndexSelect<TResult>(Func<int, TResult> selector)
         {
             var index = 0;
-            foreach (var _ in @this)
+            foreach (var _ in source)
                 yield return selector(index++);
         }
+    }
 
-        public static IEnumerable<double> Range(double minimum, double maximum, double step)
+    extension<TElement>(TElement[,] source)
+    {
+        public void For(Action<int, int, TElement> action)
         {
-            for (var value = minimum; value < maximum; value += step)
-                yield return value;
+            for (var row = 0; row < source.GetLength(0); row++) {
+                for (var column = 0; column < source.GetLength(1); column++)
+                    action(row, column, source[row, column]);
+            }
         }
+    }
 
-        public static IEnumerable<double> GetColumn(this double[,] @this, int column)
+    extension(double[,] source)
+    {
+        public IEnumerable<double> GetColumn(int column)
         {
-            for (var row = 0; row < @this.GetLength(0); row++)
-                yield return @this[row, column];
+            for (var row = 0; row < source.GetLength(0); row++)
+                yield return source[row, column];
         }
+    }
 
-        public static void Times(this int @this, Action action)
+    extension(int value)
+    {
+        public void Times(Action action)
         {
-            for (var time = 0; time < @this; time++)
+            for (var time = 0; time < value; time++)
                 action();
         }
     }
+
+    public static IEnumerable<double> Range(double minimum, double maximum, double step)
+    {
+        for (var value = minimum; value < maximum; value += step)
+            yield return value;
+    }
+}
 
     public static class Math // 数学
     {
@@ -103,29 +115,30 @@ namespace NeuralNetwork.Core
 
         // 各層の重み
         // 入力層 → 中間層の重み
-        double[,] inputWeight = new double[,] { { RandomWeight, RandomWeight }, { RandomWeight, RandomWeight }, { RandomWeight, RandomWeight } };
+        double[,] inputWeight = { { RandomWeight, RandomWeight }, { RandomWeight, RandomWeight }, { RandomWeight, RandomWeight } };
         // 中間層 → 出力層の重み
-        double[] middleWeight = new[] { RandomWeight, RandomWeight, RandomWeight };
+        double[] middleWeight = [RandomWeight, RandomWeight, RandomWeight];
 
-        readonly static Random random = new Random();
         const double weightRange = 10.0;
-        static double RandomWeight => (random.NextDouble() - 0.5) * weightRange;
+        static double RandomWeight => (Random.Shared.NextDouble() - 0.5) * weightRange;
 
         // 実行
         public double Commit((double, double) data)
         {
             // 各層
-            inputLayer = new[] { data.Item1, data.Item2, inputLayerBias };
-            middleLayer = new[] { new Neuron(), new Neuron() };
+            inputLayer = [data.Item1, data.Item2, inputLayerBias];
+            middleLayer = [new Neuron(), new Neuron()];
             outputLayer = new Neuron();
 
             // 入力層→中間層
             middleLayer.For((index, neuron) => middleLayer[index].Input(ToInputData(inputLayer, inputWeight.GetColumn(index).ToArray())));
 
             // 中間層→出力層
-            outputLayer.Input(new[] { new Input { Value = middleLayer[0].Value, Weight = middleWeight[0] },
-                                      new Input { Value = middleLayer[1].Value, Weight = middleWeight[1] },
-                                      new Input { Value = middleLayerBias     , Weight = middleWeight[2] } });
+            outputLayer.Input([
+                new Input { Value = middleLayer[0].Value, Weight = middleWeight[0] },
+                new Input { Value = middleLayer[1].Value, Weight = middleWeight[1] },
+                new Input { Value = middleLayerBias, Weight = middleWeight[2] }
+            ]);
 
             return outputLayer.Value;
         }
@@ -176,4 +189,3 @@ namespace NeuralNetwork.Core
         //        yield return new Input { Value = inputLayer[index], Weight = inputWeight[index] };
         // }
     }
-}
