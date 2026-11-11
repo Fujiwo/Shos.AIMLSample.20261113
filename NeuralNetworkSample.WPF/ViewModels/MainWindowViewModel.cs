@@ -8,6 +8,7 @@ namespace NeuralNetworkSample.WPF.ViewModels;
 
 public class LineSeriesViewModel
 {
+    // OxyPlot の 1 系列を描くために必要な座標、凡例、色、線、マーカーの設定。
     public List<DataPoint> Coordinates { get; set; }
     public string Title { get; set; } = "";
     public Color Color { get; set; } = Colors.Black;
@@ -19,6 +20,7 @@ public class LineSeriesViewModel
 
 public class MathViewModel
 {
+    // 関数と微分のサンプル点を、別々の系列としてグラフへ渡す。
     public LineSeriesViewModel SigmoidFunctionGraph { get; } = new() {
         Coordinates = MathModel.SigmoidFunction,
         Title = "シグモイド関数 (y = 1 /  (1 + e^-x))",
@@ -54,6 +56,7 @@ public class NeuralNetworkViewModel
 
     public NeuralNetworkViewModel()
     {
+        // 学習前のネットワークが各座標をどちらのクラスに分類するかを表示する。
         Fukui = new LineSeriesViewModel { Coordinates = neuralNetworkModel.FukuiCoordinates, Title = "福井", Color = Colors.Red };
         Others = new LineSeriesViewModel { Coordinates = neuralNetworkModel.OthersCoordinates, Title = "他都道府県", Color = Colors.Blue };
     }
@@ -68,6 +71,7 @@ public class TrainingDataViewModel
 
     public TrainingDataViewModel()
     {
+        // 教師ラベルで分けた学習用の座標を表示する。
         Fukui = new LineSeriesViewModel { Coordinates = trainingDataModelModel.LearningFukuiCoordinates, Title = "福井", Color = Colors.Red };
         Others = new LineSeriesViewModel { Coordinates = trainingDataModelModel.LearningOthersCoordinates, Title = "他都道府県", Color = Colors.Blue };
     }
@@ -84,6 +88,7 @@ public class MachineLearningViewModel
 
     public MachineLearningViewModel()
     {
+        // 教師データと、学習後に別途推論したテストデータを系列で区別する。
         TrainingFukui = new LineSeriesViewModel { Coordinates = machineLearningModel.TrainingFukuiCoordinates, Title = "福井 教師データ", Color = Colors.Red, MarkerType = MarkerType.Plus };
         TrainingOthers = new LineSeriesViewModel { Coordinates = machineLearningModel.TrainingOthersCoordinates, Title = "他都道府県 教師データ", Color = Colors.Blue, MarkerType = MarkerType.Plus };
         TestFukui = new LineSeriesViewModel { Coordinates = machineLearningModel.TestFukuiCoordinates, Title = "福井 テストデータ", Color = Colors.DarkRed, MarkerType = MarkerType.Circle };
@@ -107,6 +112,7 @@ public class MainWindowViewModel
 
     public MainWindowViewModel()
     {
+        // 各タブに対応する系列をまとめ、それぞれ独立したプロットモデルを作る。
         MathPlotModel = CreatePlotModel(Math.SigmoidFunctionGraph, Math.DifferentialSigmoidFunctionGraph);
         SampleDataPlotModel = CreatePlotModel(SampleData.Data);
         NeuralNetworkPlotModel = CreatePlotModel(NeuralNetwork.Fukui, NeuralNetwork.Others);
@@ -118,6 +124,7 @@ public class MainWindowViewModel
     {
         var model = new PlotModel();
 
+        // 各系列の座標、色、線、マーカー設定を OxyPlot の系列へ写す。
         foreach (var item in source) {
             model.Series.Add(new LineSeries {
                 Title = item.Title,
