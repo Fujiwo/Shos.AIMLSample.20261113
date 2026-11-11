@@ -8,6 +8,7 @@ public class NeuronTests
     [TestMethod]
     public void Input_ResetsPreviousSum_OnRepeatedCalls()
     {
+        // 同じ入力を連続して与えても、前回の合計値を持ち越さないことを確認する。
         var neuron = new Neuron();
         var inputs = new[]
         {

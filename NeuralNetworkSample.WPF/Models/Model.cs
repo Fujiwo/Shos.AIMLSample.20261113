@@ -12,15 +12,18 @@ public class Coordinate
     public double Longitude { get; set; }
     public double CorrectValue { get; set; }
 
+    // 基準座標を加え、左辺の正解ラベルはそのまま引き継ぐ。
     public static Coordinate operator +(Coordinate coordinate1, Coordinate coordinate2)
         => new() { Latitude = coordinate1.Latitude + coordinate2.Latitude, Longitude = coordinate1.Longitude + coordinate2.Longitude, CorrectValue = coordinate1.CorrectValue };
 
+    // 基準座標を引き、左辺の正解ラベルはそのまま引き継ぐ。
     public static Coordinate operator -(Coordinate coordinate1, Coordinate coordinate2)
         => new() { Latitude = coordinate1.Latitude - coordinate2.Latitude, Longitude = coordinate1.Longitude - coordinate2.Longitude, CorrectValue = coordinate1.CorrectValue };
 }
 
 class MathModel
 {
+    // グラフ表示用に、シグモイド関数とその微分を一定間隔でサンプリングする。
     public static List<DataPoint> SigmoidFunction => EnumerableExtension.Range(-8.0, 8.0, 0.1).Select(x => new DataPoint(x, Math.Sigmoid(x))).ToList();
     public static List<DataPoint> DifferentialSigmoidFunction => EnumerableExtension.Range(-8.0, 8.0, 0.1).Select(x => new DataPoint(x, Math.DifferentialSigmoid(x))).ToList();
 }
@@ -32,8 +35,10 @@ abstract class DataModelBase
     //Coordinate centerCoordinate = new Coordinate { Latitude = 35.8, Longitude = 136.1 };
 
     const string dataFileName = "locations.csv";
+    // 緯度・経度をこの基準点からの差に変えて、学習時に扱う数値を小さくする。
     protected Coordinate baseCoordinate = new() { Latitude = 34.5, Longitude = 137.5 };
 
+    // CSV から読み込んだ、元の緯度・経度と正解ラベルを保持する。
     protected IEnumerable<Coordinate> OriginalCoordinates { get; private set; }
 
     public DataModelBase() => Load();
@@ -43,6 +48,7 @@ abstract class DataModelBase
     //void Load() => OriginalCoordinates = Shos.CsvHelper.CsvSerializer.ReadCsv<Coordinate>(dataFileName).Where(coordinate => coordinate.CloseTo(centerCoordinate, range));
     void Load()
     {
+        // CSV は UTF-8 として読み込み、座標データの一覧を初期化する。
         Shos.CsvHelper.CsvSerializer.Encoding = System.Text.Encoding.UTF8;
         //Shos.CsvHelper.CsvSerializer.Encoding = System.Text.Encoding.GetEncoding("Shift-JIS");
         OriginalCoordinates = Shos.CsvHelper.CsvSerializer.ReadCsv<Coordinate>(dataFileName); //.Where(coordinate => coordinate.CloseTo(centerCoordinate, range));
@@ -55,6 +61,7 @@ class SampleDataModel : DataModelBase
 {
     public List<DataPoint> Coordinates { get; private set; }
 
+    // 元座標をプロット用の (経度, 緯度) に変換する。
     public SampleDataModel() => Load();
 
     void Load() => Coordinates = OriginalCoordinates.Select(coordinate => ToDataPoint(coordinate)).ToList();
@@ -65,6 +72,7 @@ class NeuralNetworkModel : SampleDataModel
     public List<DataPoint> FukuiCoordinates { get; } = [];
     public List<DataPoint> OthersCoordinates { get; } = [];
 
+    // 学習前のランダムな重みで、座標を福井とそれ以外に分類する。
     NeuralNetwork.Core.NeuralNetwork neuralNetwork = new();
 
     public NeuralNetworkModel() => Initialize(OriginalCoordinates.Select(coordinate => coordinate - baseCoordinate));
@@ -75,6 +83,7 @@ class NeuralNetworkModel : SampleDataModel
         OthersCoordinates.Clear();
 
         foreach (var coordinate in coordinates) {
+            // 基準点からの差で推論し、表示するときは元の座標へ戻す。
             if (neuralNetwork.Commit((coordinate.Latitude, coordinate.Longitude)) < 0.5)
                 FukuiCoordinates.Add(ToDataPoint(coordinate + baseCoordinate));
             else
@@ -96,6 +105,7 @@ class TrainingDataModel : SampleDataModel
         LearningOthersCoordinates.Clear();
 
         foreach (var coordinate in coordinates) {
+            // 予測ではなく教師ラベルを使って、学習データの正解クラスごとに分ける。
             if (coordinate.CorrectValue < 0.5)
                 LearningFukuiCoordinates.Add(ToDataPoint(coordinate + baseCoordinate));
             else
@@ -113,12 +123,14 @@ class MachineLearningModel : SampleDataModel
     public List<DataPoint> TestFukuiCoordinates { get; } = [];
     public List<DataPoint> TestOthersCoordinates { get; } = [];
 
+    // 学習用データで重みを更新した後、別の座標で分類結果を確認する。
     NeuralNetwork.Core.NeuralNetwork neuralNetwork = new();
 
     public MachineLearningModel() => Load();
 
     void Load()
     {
+        // すべての座標を同じ基準点からの差に変換してから学習と評価に使う。
         var coordinates = OriginalCoordinates.Select(coordinate => coordinate - baseCoordinate);
         InitializeTrainingData(coordinates);
         Learn(coordinates);
@@ -143,6 +155,7 @@ class MachineLearningModel : SampleDataModel
 
     void Test()
     {
+        // 学習 CSV とは別に用意した福井県内の座標で、学習後の分類を確認する。
         Coordinate[] coordinates = [
             new() { Latitude = 36.258288, Longitude = 136.284582 },
             new() { Latitude = 36.274912, Longitude = 136.329279 },
@@ -183,6 +196,7 @@ class MachineLearningModel : SampleDataModel
         TestOthersCoordinates.Clear();
 
         foreach (var coordinate in coordinates) {
+            // 推論スコアを 0.5 で分け、表示用の元座標に戻して保存する。
             if (neuralNetwork.Commit((coordinate.Latitude, coordinate.Longitude)) < 0.5)
                 TestFukuiCoordinates.Add(ToDataPoint(coordinate + baseCoordinate));
             else

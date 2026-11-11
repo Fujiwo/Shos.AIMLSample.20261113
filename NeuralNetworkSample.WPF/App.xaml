@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:NeuralNetworkSample.WPF"
              StartupUri="Views/MainWindow.xaml">
+    <!-- 起動時に最初に表示するウィンドウを指定する。 -->
     <Application.Resources>
 
     </Application.Resources>
